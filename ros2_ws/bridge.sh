@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Definicja topików dla obu robotów
-# Składnia: /TOPIC@ROS_MSG_TYPE@GZ_MSG_TYPE
+# Topic definition for ROS2-Gazebo bridge
+# Syntax: /TOPIC@ROS_MSG_TYPE@GZ_MSG_TYPE
 
 ros2 run ros_gz_bridge parameter_bridge \
 /J1/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist \
