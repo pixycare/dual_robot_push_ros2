@@ -1,25 +1,17 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <sdf version="1.8">
     <world name="car_world">
         <physics name="1ms" type="ignored">
             <max_step_size>0.001</max_step_size>
             <real_time_factor>1.0</real_time_factor>
         </physics>
-        <plugin
-            filename="gz-sim-physics-system"
-            name="gz::sim::systems::Physics">
+        <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
         </plugin>
-        <plugin
-            filename="gz-sim-user-commands-system"
-            name="gz::sim::systems::UserCommands">
+        <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands">
         </plugin>
-        <plugin
-            filename="gz-sim-scene-broadcaster-system"
-            name="gz::sim::systems::SceneBroadcaster">
+        <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster">
         </plugin>
-        <plugin
-            filename="gz-sim-sensors-system"
-            name="gz::sim::systems::Sensors">
+        <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
             <render_engine>ogre2</render_engine>
         </plugin>
 
@@ -51,7 +43,7 @@
                 <geometry>
                     <plane>
                     <normal>0 0 1</normal>
-                    <size>24 18</size>
+                    <size>8 3</size>
                     </plane>
                 </geometry>
                 <material>
@@ -63,37 +55,37 @@
             </link>
         </model>
 
-        <model name='jetbot1' canonical_link='chassis'>
-            <pose relative_to='world'>0 -3 0 0 0 0</pose>   <!--the pose is relative to the world by default-->
+        <model name="jetbot1" canonical_link="chassis">
+            <pose relative_to="world">-0.2 -0.3 0 0 0 0</pose>   <!--the pose is relative to the world by default-->
 
             <!-- sensor frames -->
-            <frame name="lidar_frame" attached_to='chassis'>
-                <pose>0.0 0.0 1.0 0 0 0</pose>
+            <frame name="lidar_frame" attached_to="chassis">
+                <pose>0 0 0.1 0 0 0</pose>
             </frame>
 
-            <frame name="camera_frame" attached_to='chassis'>
-                <pose>0.0 0.0 1.0 0 0 0</pose>
+            <frame name="camera_frame" attached_to="chassis">
+                <pose>0 0 0.1 0 0 0</pose>
             </frame>
 
             <!--chassis-->
-            <link name='chassis'>
-                <pose relative_to='__model__'>0.0 0 0.45 0 0 0</pose>
+            <link name="chassis">
+                <pose relative_to="__model__">0 0 0.045 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>1.14395</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>1.07</radius>
-                            <length>0.1</length>
+                            <radius>0.107</radius>
+                            <length>0.01</length>
                         </cylinder>
                     </geometry>
                     <!--Color of the link-->
@@ -103,35 +95,35 @@
                         <specular>0.6 0.8 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
                             <radius>0.107</radius>
-                            <length>0.01</length>
+                            <length>0.001</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!-- LIDAR 3D shape definition -->
-            <link name='lidar1'>
-                <pose relative_to='chassis'>0.0 0 0.4 0 0 0</pose>
+            <link name="lidar1">
+                <pose relative_to="chassis">0 0 0.04 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>1.14395</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                     <!--Color of the link-->
@@ -141,18 +133,18 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                 </collision>
     
                 <!-- LIDAR sensor parameters -->
-                <sensor name='gpu_lidar' type='gpu_lidar'>"
-                    <pose relative_to='lidar_frame'>0 0 0 0 0 0</pose>
+                <sensor name="gpu_lidar" type="gpu_lidar">"
+                    <pose relative_to="lidar_frame">0 0 -0.02 0 0 0</pose>
                     <topic>/J1/lidar</topic>
                     <update_rate>5</update_rate>
                     <ray>
@@ -160,8 +152,8 @@
                             <horizontal>
                                 <samples>360</samples>
                                 <resolution>1</resolution>
-                                <min_angle>-1.396263</min_angle>
-                                <max_angle>1.396263</max_angle>
+                                <min_angle>-3.14159</min_angle>
+                                <max_angle>3.14159</max_angle>
                             </horizontal>
                             <vertical>
                                 <samples>1</samples>
@@ -182,23 +174,23 @@
             </link>
 
             <!-- CAMERA 3D shape definition -->
-            <link name='camera1'>
-                <pose relative_to='chassis'>0.8 0.0 0.3 0 0 0</pose>
+            <link name="camera1">
+                <pose relative_to="chassis">0.08 0 0.03 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>0.1</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <box>
-                            <size>0.1 0.3 0.6</size>
+                            <size>0.01 0.03 0.06</size>
                         </box>
                     </geometry>
                     <!--Color of the link-->
@@ -208,18 +200,18 @@
                         <specular>0.6 0.9 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                 </collision>
 
                 <!-- CAMERA sensor parameters -->
                 <sensor name="rgb_camera" type="camera">
-                    <pose relative_to='camera_frame'>0 0 0 0 0 0</pose>
+                    <pose relative_to="camera_frame">0 0 0 0 0 0</pose>
                     <always_on>true</always_on>
                     <visualize>true</visualize>
                     <update_rate>5</update_rate>
@@ -242,24 +234,24 @@
             </link>
 
             <!--Left wheel 3D shape definition-->
-            <link name='left_wheel'>
-                <pose relative_to="chassis">0.0 1.17 0 -1.5707 0 0</pose> <!--angles are in radian-->
+            <link name="left_wheel">
+                <pose relative_to="chassis">0 0.117 0 -1.5707 0 0</pose> <!--angles are in radian-->
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.043333</ixx>
+                        <ixx>0.00043333</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.043333</iyy>
+                        <iyy>0.00043333</iyy>
                         <iyz>0</iyz>
-                        <izz>0.08</izz>
+                        <izz>0.0008</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                     <material>
@@ -268,35 +260,35 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!--Right wheel 3D shape definition-->
-            <link name='right_wheel'>
-                <pose relative_to="chassis">0.0 -1.17 0 -1.5707 0 0</pose> <!--angles are in radian-->
+            <link name="right_wheel">
+                <pose relative_to="chassis">0 -0.117 0 -1.5707 0 0</pose> <!--angles are in radian-->
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.043333</ixx>
+                        <ixx>0.00043333</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.043333</iyy>
+                        <iyy>0.00043333</iyy>
                         <iyz>0</iyz>
-                        <izz>0.08</izz>
+                        <izz>0.0008</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                     <material>
@@ -305,79 +297,79 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!--arbitrary frame-->
-            <frame name="caster_frame0" attached_to='chassis'>
-                <pose>0.8 0 -0.2 0 0 0</pose>
+            <frame name="caster_frame0" attached_to="chassis">
+                <pose>0.08 0 -0.02 0 0 0</pose>
             </frame>
 
             <!--caster wheel-->
-            <link name='caster0'>
-                <pose relative_to='caster_frame0'/>
+            <link name="caster0">
+                <pose relative_to="caster_frame0"/>
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.016</ixx>
+                        <ixx>0.00016</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.016</iyy>
+                        <iyy>0.00016</iyy>
                         <iyz>0</iyz>
-                        <izz>0.016</izz>
+                        <izz>0.00016</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                     <material>
-                        <ambient>0.4 0.4 0.4 1</ambient>
+                        <ambient>1 1 1 1</ambient>
                         <diffuse>0.4 0.4 0.4 1</diffuse>
                         <specular>0.4 0.4 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                 </collision>
             </link>
 
             <!--arbitrary frame-->
-            <frame name="caster_frame1" attached_to='chassis'>
-                <pose>-0.8 0 -0.2 0 0 0</pose>
+            <frame name="caster_frame1" attached_to="chassis">
+                <pose>-0.08 0 -0.02 0 0 0</pose>
             </frame>
 
             <!--caster wheel-->
-            <link name='caster1'>
-                <pose relative_to='caster_frame1'/>
+            <link name="caster1">
+                <pose relative_to="caster_frame1"/>
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.016</ixx>
+                        <ixx>0.00016</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.016</iyy>
+                        <iyy>0.00016</iyy>
                         <iyz>0</iyz>
-                        <izz>0.016</izz>
+                        <izz>0.00016</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                     <material>
@@ -386,22 +378,22 @@
                         <specular>0.4 0.4 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                 </collision>
             </link>
 
             <!--left wheel joint-->
-            <joint name='left_wheel_joint' type='revolute'>
-                <pose relative_to='left_wheel'/>
+            <joint name="left_wheel_joint" type="revolute">
+                <pose relative_to="left_wheel"/>
                 <parent>chassis</parent>
                 <child>left_wheel</child>
                 <axis>
-                    <xyz expressed_in='__model__'>0 1 0</xyz> <!--can be descired to any frame or even arbitrary frames-->
+                    <xyz expressed_in="__model__">0 1 0</xyz> <!--can be descired to any frame or even arbitrary frames-->
                     <limit>
                         <lower>-1.79769e+308</lower>    <!--negative infinity-->
                         <upper>1.79769e+308</upper>     <!--positive infinity-->
@@ -410,12 +402,12 @@
             </joint>
 
             <!--right wheel joint-->
-            <joint name='right_wheel_joint' type='revolute'>
-                <pose relative_to='right_wheel'/>
+            <joint name="right_wheel_joint" type="revolute">
+                <pose relative_to="right_wheel"/>
                 <parent>chassis</parent>
                 <child>right_wheel</child>
                 <axis>
-                    <xyz expressed_in='__model__'>0 1 0</xyz>
+                    <xyz expressed_in="__model__">0 1 0</xyz>
                     <limit>
                         <lower>-1.79769e+308</lower>    <!--negative infinity-->
                         <upper>1.79769e+308</upper>     <!--positive infinity-->
@@ -424,11 +416,11 @@
             </joint>
 
             <!--caster wheel joint--> <!--pose defult value is the child-->
-            <joint name='caster_wheel_front' type='ball'>
+            <joint name="caster_wheel_front" type="ball">
                 <parent>chassis</parent>
                 <child>caster0</child>
             </joint>
-            <joint name='caster_wheel_rear' type='ball'>
+            <joint name="caster_wheel_rear" type="ball">
                 <parent>chassis</parent>
                 <child>caster1</child>
             </joint>
@@ -444,13 +436,11 @@
             </joint>
             
             <!-- cmd_vel and odometry -->
-            <plugin
-                filename="gz-sim-diff-drive-system"
-                name="gz::sim::systems::DiffDrive">
+            <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
                 <left_joint>left_wheel_joint</left_joint>
                 <right_joint>right_wheel_joint</right_joint>
-                <wheel_separation>1.2</wheel_separation>
-                <wheel_radius>0.4</wheel_radius>
+                <wheel_separation>0.12</wheel_separation>
+                <wheel_radius>0.04</wheel_radius>
                 <odom_publish_frequency>1</odom_publish_frequency>
                 <topic>/J1/cmd_vel</topic>
                 <odom_topic>/J1/odom</odom_topic>
@@ -459,37 +449,37 @@
 
         </model>
 
-        <model name='jetbot2' canonical_link='chassis'>
-            <pose relative_to='world'>0 3 0 0 0 0</pose>   <!--the pose is relative to the world by default-->
+        <model name="jetbot2" canonical_link="chassis">
+            <pose relative_to="world">0 0.3 0 0 0 0</pose>   <!--the pose is relative to the world by default-->
 
             <!-- sensor frames -->
-            <frame name="lidar_frame" attached_to='chassis'>
-                <pose>0.0 0.0 1.0 0 0 0</pose>
+            <frame name="lidar_frame" attached_to="chassis">
+                <pose>0 0 0.1 0 0 0</pose>
             </frame>
 
-            <frame name="camera_frame" attached_to='chassis'>
-                <pose>0.0 0.0 1.0 0 0 0</pose>
+            <frame name="camera_frame" attached_to="chassis">
+                <pose>0 0 0.1 0 0 0</pose>
             </frame>
 
             <!--chassis-->
-            <link name='chassis'>
-                <pose relative_to='__model__'>0.0 0 0.45 0 0 0</pose>
+            <link name="chassis">
+                <pose relative_to="__model__">0 0 0.045 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>1.14395</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>1.07</radius>
-                            <length>0.1</length>
+                            <radius>0.107</radius>
+                            <length>0.01</length>
                         </cylinder>
                     </geometry>
                     <!--Color of the link-->
@@ -499,35 +489,35 @@
                         <specular>0.6 0.8 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
                             <radius>0.107</radius>
-                            <length>0.01</length>
+                            <length>0.001</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!-- LIDAR 3D shape definition -->
-            <link name='lidar2'>
-                <pose relative_to='chassis'>0.0 0 0.4 0 0 0</pose>
+            <link name="lidar2">
+                <pose relative_to="chassis">0 0 0.04 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>1.14395</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                     <!--Color of the link-->
@@ -537,18 +527,18 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                 </collision>
     
                 <!-- LIDAR sensor parameters -->
-                <sensor name='gpu_lidar' type='gpu_lidar'>"
-                    <pose relative_to='lidar_frame'>0 0 0 0 0 0</pose>
+                <sensor name="gpu_lidar" type="gpu_lidar">"
+                    <pose relative_to="lidar_frame">0 0 -0.02 0 0 0</pose>
                     <topic>/J2/lidar</topic>
                     <update_rate>5</update_rate>
                     <ray>
@@ -556,8 +546,8 @@
                             <horizontal>
                                 <samples>360</samples>
                                 <resolution>1</resolution>
-                                <min_angle>-1.396263</min_angle>
-                                <max_angle>1.396263</max_angle>
+                                <min_angle>-3.14159</min_angle>
+                                <max_angle>3.14159</max_angle>
                             </horizontal>
                             <vertical>
                                 <samples>1</samples>
@@ -578,23 +568,23 @@
             </link>
 
             <!-- CAMERA 3D shape definition -->
-            <link name='camera2'>
-                <pose relative_to='chassis'>0.8 0.0 0.3 0 0 0</pose>
+            <link name="camera2">
+                <pose relative_to="chassis">0.08 0 0.03 0 0 0</pose>
                 <inertial> <!--inertial properties of the link mass, inertia matix-->
                     <mass>0.1</mass>
                     <inertia>
-                        <ixx>0.095329</ixx>
+                        <ixx>0.00095329</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.381317</iyy>
+                        <iyy>0.00381317</iyy>
                         <iyz>0</iyz>
-                        <izz>0.476646</izz>
+                        <izz>0.00476646</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <box>
-                            <size>0.1 0.3 0.6</size>
+                            <size>0.01 0.03 0.06</size>
                         </box>
                     </geometry>
                     <!--Color of the link-->
@@ -604,18 +594,18 @@
                         <specular>0.6 0.9 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.8</length>
+                            <radius>0.04</radius>
+                            <length>0.08</length>
                         </cylinder>
                     </geometry>
                 </collision>
 
                 <!-- CAMERA sensor parameters -->
                 <sensor name="rgb_camera" type="camera">
-                    <pose relative_to='camera_frame'>0 0 0 0 0 0</pose>
+                    <pose relative_to="camera_frame">0 0 0 0 0 0</pose>
                     <always_on>true</always_on>
                     <visualize>true</visualize>
                     <update_rate>5</update_rate>
@@ -638,24 +628,24 @@
             </link>
 
             <!--Left wheel 3D shape definition-->
-            <link name='left_wheel'>
-                <pose relative_to="chassis">0.0 1.17 0 -1.5707 0 0</pose> <!--angles are in radian-->
+            <link name="left_wheel">
+                <pose relative_to="chassis">0 0.117 0 -1.5707 0 0</pose> <!--angles are in radian-->
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.043333</ixx>
+                        <ixx>0.00043333</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.043333</iyy>
+                        <iyy>0.00043333</iyy>
                         <iyz>0</iyz>
-                        <izz>0.08</izz>
+                        <izz>0.0008</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                     <material>
@@ -664,35 +654,35 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!--Right wheel 3D shape definition-->
-            <link name='right_wheel'>
-                <pose relative_to="chassis">0.0 -1.17 0 -1.5707 0 0</pose> <!--angles are in radian-->
+            <link name="right_wheel">
+                <pose relative_to="chassis">0 -0.117 0 -1.5707 0 0</pose> <!--angles are in radian-->
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.043333</ixx>
+                        <ixx>0.00043333</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.043333</iyy>
+                        <iyy>0.00043333</iyy>
                         <iyz>0</iyz>
-                        <izz>0.08</izz>
+                        <izz>0.0008</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                     <material>
@@ -701,39 +691,39 @@
                         <specular>0.0 0.0 0.0 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <cylinder>
-                            <radius>0.4</radius>
-                            <length>0.2</length>
+                            <radius>0.04</radius>
+                            <length>0.02</length>
                         </cylinder>
                     </geometry>
                 </collision>
             </link>
 
             <!--arbitrary frame-->
-            <frame name="caster_frame0" attached_to='chassis'>
-                <pose>0.8 0 -0.2 0 0 0</pose>
+            <frame name="caster_frame0" attached_to="chassis">
+                <pose>0.08 0 -0.02 0 0 0</pose>
             </frame>
 
             <!--caster wheel-->
-            <link name='caster0'>
-                <pose relative_to='caster_frame0'/>
+            <link name="caster0">
+                <pose relative_to="caster_frame0"/>
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.016</ixx>
+                        <ixx>0.00016</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.016</iyy>
+                        <iyy>0.00016</iyy>
                         <iyz>0</iyz>
-                        <izz>0.016</izz>
+                        <izz>0.00016</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                     <material>
@@ -742,38 +732,38 @@
                         <specular>0.4 0.4 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                 </collision>
             </link>
 
             <!--arbitrary frame-->
-            <frame name="caster_frame1" attached_to='chassis'>
-                <pose>-0.8 0 -0.2 0 0 0</pose>
+            <frame name="caster_frame1" attached_to="chassis">
+                <pose>-0.08 0 -0.02 0 0 0</pose>
             </frame>
 
             <!--caster wheel-->
-            <link name='caster1'>
-                <pose relative_to='caster_frame1'/>
+            <link name="caster1">
+                <pose relative_to="caster_frame1"/>
                 <inertial>
                     <mass>1</mass>
                     <inertia>
-                        <ixx>0.016</ixx>
+                        <ixx>0.00016</ixx>
                         <ixy>0</ixy>
                         <ixz>0</ixz>
-                        <iyy>0.016</iyy>
+                        <iyy>0.00016</iyy>
                         <iyz>0</iyz>
-                        <izz>0.016</izz>
+                        <izz>0.00016</izz>
                     </inertia>
                 </inertial>
-                <visual name='visual'>
+                <visual name="visual">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                     <material>
@@ -782,22 +772,22 @@
                         <specular>0.4 0.4 0.4 1</specular>
                     </material>
                 </visual>
-                <collision name='collision'>
+                <collision name="collision">
                     <geometry>
                         <sphere>
-                            <radius>0.2</radius>
+                            <radius>0.02</radius>
                         </sphere>
                     </geometry>
                 </collision>
             </link>
 
             <!--left wheel joint-->
-            <joint name='left_wheel_joint' type='revolute'>
-                <pose relative_to='left_wheel'/>
+            <joint name="left_wheel_joint" type="revolute">
+                <pose relative_to="left_wheel"/>
                 <parent>chassis</parent>
                 <child>left_wheel</child>
                 <axis>
-                    <xyz expressed_in='__model__'>0 1 0</xyz> <!--can be descired to any frame or even arbitrary frames-->
+                    <xyz expressed_in="__model__">0 1 0</xyz> <!--can be descired to any frame or even arbitrary frames-->
                     <limit>
                         <lower>-1.79769e+308</lower>    <!--negative infinity-->
                         <upper>1.79769e+308</upper>     <!--positive infinity-->
@@ -806,12 +796,12 @@
             </joint>
 
             <!--right wheel joint-->
-            <joint name='right_wheel_joint' type='revolute'>
-                <pose relative_to='right_wheel'/>
+            <joint name="right_wheel_joint" type="revolute">
+                <pose relative_to="right_wheel"/>
                 <parent>chassis</parent>
                 <child>right_wheel</child>
                 <axis>
-                    <xyz expressed_in='__model__'>0 1 0</xyz>
+                    <xyz expressed_in="__model__">0 1 0</xyz>
                     <limit>
                         <lower>-1.79769e+308</lower>    <!--negative infinity-->
                         <upper>1.79769e+308</upper>     <!--positive infinity-->
@@ -820,11 +810,11 @@
             </joint>
 
             <!--caster wheel joint--> <!--pose defult value is the child-->
-            <joint name='caster_wheel_front' type='ball'>
+            <joint name="caster_wheel_front" type="ball">
                 <parent>chassis</parent>
                 <child>caster0</child>
             </joint>
-            <joint name='caster_wheel_rear' type='ball'>
+            <joint name="caster_wheel_rear" type="ball">
                 <parent>chassis</parent>
                 <child>caster1</child>
             </joint>
@@ -840,13 +830,11 @@
             </joint>
             
             <!-- cmd_vel and odometry -->
-            <plugin
-                filename="gz-sim-diff-drive-system"
-                name="gz::sim::systems::DiffDrive">
+            <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
                 <left_joint>left_wheel_joint</left_joint>
                 <right_joint>right_wheel_joint</right_joint>
-                <wheel_separation>1.2</wheel_separation>
-                <wheel_radius>0.4</wheel_radius>
+                <wheel_separation>0.12</wheel_separation>
+                <wheel_radius>0.04</wheel_radius>
                 <odom_publish_frequency>1</odom_publish_frequency>
                 <topic>/J2/cmd_vel</topic>
                 <odom_topic>/J2/odom</odom_topic> 
@@ -855,29 +843,29 @@
 
         </model>
 
-        <model name='box_obstacle'>
-            <pose relative_to='world'>9 0 3 0 0 0.785</pose> <link name='box_link'>
+        <model name="box_obstacle">
+            <pose relative_to="world"> 2 0 0.3 0 0 0.785</pose> <link name="box_link">
                 <inertial>
                 <mass>1.0</mass>
                 <inertia>
-                    <ixx>0.166667</ixx>
+                    <ixx>0.01</ixx>
                     <ixy>0</ixy>
                     <ixz>0</ixz>
-                    <iyy>0.166667</iyy>
+                    <iyy>0.01</iyy>
                     <iyz>0</iyz>
-                    <izz>0.166667</izz>
+                    <izz>0.01</izz>
                 </inertia>
                 </inertial>
-                <collision name='collision'>
+                <collision name="collision">
                 <geometry>
                     <box>
-                    <size>2 2 6</size> </box>
+                    <size>0.4 0.4 0.6</size> </box>
                 </geometry>
                 </collision>
-                <visual name='visual'>
+                <visual name="visual">
                 <geometry>
                     <box>
-                    <size>2 2 6</size>
+                    <size>0.4 0.4 0.6</size>
                     </box>
                 </geometry>
                 <material>

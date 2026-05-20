@@ -1,118 +1,334 @@
 import rclpy
 from rclpy.node import Node
-#import cv2
-#from std_msgs.msg import String
-#from sensor_msgs.msg import Imu
-from geometry_msgs.msg import Twist #, PointStamped
-#from visualization_msgs.msg import Marker
+
+from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
+
 import numpy as np
 
 
-class DanceNode(Node):
+class MultiRobotController(Node):
 
     def __init__(self):
-        super().__init__('Dance')
+        super().__init__('multi_robot_controller')
 
-        self.J1_odom = Odometry()
-        self.J2_odom = Odometry()
-        self.J1_lidar = LaserScan()
-        self.J2_lidar = LaserScan()
+        self.robot_ids = ["J0", "J1"]
 
-        self.subscription_J1_odom = self.create_subscription(
-            Odometry,
-            '/J1/odom',
-            self.J1_save_odom,
-            10
-        )
+        self.robots = {
+            rid: {
+                "odom": None,
+                "lidar": None,
+                "state": "INIT",
+                "ready": False,
+                "last_angle": None,
+                "last_dist": None,
+            }
+            for rid in self.robot_ids
+        }
 
-        self.subscription_J2_odom = self.create_subscription(
-            Odometry,
-            '/J2/odom',
-            self.J2_save_odom,
-            10
-        )
+        self.cmd_vel_pub = {
+            "J0": self.create_publisher(Twist, "/J0/cmd_vel", 10),
+            "J1": self.create_publisher(Twist, "/J1/cmd_vel", 10),
+        }
 
-        self.subscription_J1_lidar = self.create_subscription(
-            LaserScan,
-            '/J1/lidar',
-            self.J1_save_lidar,
-            10
-        )
+        for rid in self.robot_ids:
 
-        self.subscription_J2_lidar = self.create_subscription(
-            LaserScan,
-            '/J2/lidar',
-            self.J2_save_lidar,
-            10
-        )
+            self.create_subscription(
+                Odometry,
+                f'/{rid}/odom',
+                lambda msg, r=rid: self.odom_cb(msg, r),
+                10
+            )
 
-        self.publisher_J1_cmd_vel = self.create_publisher(
-            Twist,
-            '/J1/cmd_vel',
-            10
-        )
+            self.create_subscription(
+                LaserScan,
+                f'/{rid}/lidar',
+                lambda msg, r=rid: self.lidar_cb(msg, r),
+                10
+            )
 
-        self.publisher_J2_cmd_vel = self.create_publisher(
-            Twist,
-            '/J2/cmd_vel',
-            10
-        )
-        timer_T = 0.1
-        self.timer_send_vel = self.create_timer(timer_T, self.send_vel)
-        self.timer_print_odom = self.create_timer(20* timer_T, self.print_lidar)
+        self.timer = self.create_timer(0.1, self.control_loop)
+
+    # =========================================================
+    # CALLBACKS
+    # =========================================================
+
+    def odom_cb(self, msg, rid):
+        self.robots[rid]["odom"] = msg
+
+    # def lidar_cb(self, msg, rid):
+    #     self.robots[rid]["lidar"] = msg
+    
+    def lidar_cb(self, msg, rid):
+        self.robots[rid]["lidar"] = msg
+
+        valid = [r for r in msg.ranges if not np.isinf(r) and not np.isnan(r)]
+
+        if valid:
+            print(f"[{rid}] nearest object: {min(valid):.2f} m")
+
+    # =========================================================
+    # LOOP
+    # =========================================================
+
+    def control_loop(self):
+        for rid in self.robot_ids:
+            self.step_robot(rid)
+
+    # =========================================================
+    # FSM
+    # =========================================================
+
+    def step_robot(self, rid):
+
+        robot = self.robots[rid]
+
+        if robot["lidar"] is None:
+            return
+
+        state = robot["state"]
+
+        if state == "INIT":
+            print(f"[{rid}] INIT -> PREPARE")
+            robot["state"] = "PREPARE"
+        elif state == "PREPARE":
+
+            print(f"[{rid}] STATE: PREPARE")
+
+            angle, dist = self.detect_robot(rid)
+
+            # robot not seen
+            if angle is None or dist is None:
+                self.rotate_slow(rid)
+                return
+
+            print(f"[{rid}] PREPARE target: "
+                f"angle={np.degrees(angle):.1f} deg "
+                f"dist={dist:.2f} m")
+
+            # first align
+            if abs(angle) > 0.08:
+                self.rotate_to_angle(rid, angle)
+                return
+
+            # then move closer
+            if dist > 0.40:
+                self.drive_prepare(rid, angle, dist)
+                return
+
+            self.stop(rid)
+
+            robot["ready"] = True
+
+            if self.check_sync():
+                print(">>> PREPARE COMPLETE -> SEARCH")
+
+                for r in self.robot_ids:
+                    self.robots[r]["state"] = "SEARCH"
+                    self.robots[r]["ready"] = False
 
 
-    def J1_save_odom(self, msg):
-        self.J1_odom = msg
 
-    def J2_save_odom(self, msg):
-        self.J2_odom = msg
+        elif state == "SEARCH":
+            print(f"[{rid}] STATE: SEARCH")
 
-    def J1_save_lidar(self, msg):
-        self.J1_lidar = msg
+            angle, dist = self.detect_target(rid)
 
-    def J2_save_lidar(self, msg):
-        self.J2_lidar = msg
+            if angle is not None:
+                print(f"[{rid}] SEARCH -> ALIGN")
+                robot["state"] = "ALIGN"
+                return
+
+            if dist is not None and dist < 0.2:
+                print(f"[{rid}] SEARCH -> APPROACH (close memory)")
+                robot["state"] = "APPROACH"
+                return
+
+            self.rotate_slow(rid)
+
+        elif state == "ALIGN":
+            # print(f"[{rid}] STATE: ALIGN")
+
+            angle, dist = self.detect_target(rid)
+
+            if angle is None:
+                print(f"[{rid}] ALIGN -> SEARCH (lost)")
+                robot["state"] = "SEARCH"
+                return
+            print(f"[{rid}] ALIGN -> angle: {np.degrees(angle):.2f} deg, dist: {dist:.2f} m")
+            if abs(angle) < 0.05:
+                print(f"[{rid}] ALIGN -> APPROACH")
+                self.stop(rid)
+                robot["state"] = "APPROACH"
+                return
+
+            self.rotate_to_angle(rid, angle)
+
+        elif state == "APPROACH":
+            print(f"[{rid}] STATE: APPROACH")
+
+            angle, dist = self.detect_target(rid)
+
+            if angle is None:
+                print(f"[{rid}] APPROACH -> SEARCH (lost)")
+                robot["state"] = "SEARCH"
+                return
+
+            if dist is not None and dist < 0.8:                
+                print(f"[{rid}] APPROACH -> WAIT (ready)")
+                self.stop(rid)
+                robot["ready"] = True
+                robot["state"] = "WAIT"
+                return
+            if rid == "J0":
+                self.drive_to_target(rid, angle-20*dist/180)
+            else:
+                self.drive_to_target(rid, angle+20*dist/180)
+        elif state == "WAIT":
+
+            print(f"[{rid}] STATE: WAIT")
+
+            self.stop(rid)
+
+            if self.check_sync():
+                print(">>> BOTH ROBOTS READY -> PUSH")
+                for r in self.robot_ids:
+                    self.robots[r]["state"] = "PUSH"
+
+        elif state == "PUSH":
+
+            print(f"[{rid}] STATE: PUSH")
+
+            msg = Twist()
+
+            msg.linear.x = 0.25
+            msg.angular.z = 0.0
+
+            self.cmd_vel_pub[rid].publish(msg)
+
+    # =========================================================
+    # SYNC
+    # =========================================================
+
+    def check_sync(self):
+        return all(self.robots[r]["ready"] for r in self.robot_ids)
+
+    # =========================================================
+    # SIMPLE LIDAR DETECTION
+    # =========================================================
+
+    def detect_target(self, rid):
+
+        scan = self.robots[rid]["lidar"]
+
+        points = []
+
+        for i, r in enumerate(scan.ranges):
+
+            if np.isinf(r) or np.isnan(r):
+                continue
+
+            angle = scan.angle_min + i * scan.angle_increment
+            angle_deg = np.degrees(angle)
 
 
-    def send_vel(self):
+            if 0.6 < r < 2:
+                points.append((angle, r))
+
+        if len(points) < 5:
+            return self.robots[rid]["last_angle"], self.robots[rid]["last_dist"]
+
+        angles = [p[0] for p in points]
+        dists  = [p[1] for p in points]
+
+        angle = np.median(angles)
+        dist  = np.median(dists)
+        # print("-> angle (deg):", np.median(angles), "dist:", np.median(dists))
+        self.robots[rid]["last_angle"] = np.median(angles)
+        self.robots[rid]["last_dist"] = np.median(dists)
+        return np.median(angles), np.median(dists)
+
+    def detect_robot(self, rid):
+
+        scan = self.robots[rid]["lidar"]
+
+        points = []
+
+        for i, r in enumerate(scan.ranges):
+
+            if np.isinf(r) or np.isnan(r):
+                continue
+
+            angle = scan.angle_min + i * scan.angle_increment
+            angle_deg = np.degrees(angle)
+
+
+            if 0.05 < r < 0.6:
+                points.append((angle, r))
+
+        if len(points) < 3:
+            return None, None
+
+        angles = [p[0] for p in points]
+        dists  = [p[1] for p in points]
+
+        return np.median(angles), np.median(dists)
+    # # =========================================================
+    # # SECTORS
+    # # =========================================================
+
+    # def is_in_sector(self, rid, angle_deg):
+
+    #     if rid == "J1":
+    #         return -70 < angle_deg < 20
+    #     else:
+    #         return -20 < angle_deg < 70
+
+    # =========================================================
+    # CONTROL
+    # =========================================================
+
+    def rotate_slow(self, rid):
+
         msg = Twist()
-        msg.linear.x = 0.5  # Jedź do przodu
-        msg.angular.z = 0.1 # Lekko skręcaj
-        self.publisher_J1_cmd_vel.publish(msg)
+        if rid == "J0":
+            msg.angular.z = 0.5
+        else:
+            msg.angular.z = -0.5
+        self.cmd_vel_pub[rid].publish(msg)
+
+    def stop(self, rid):
 
         msg = Twist()
-        msg.linear.x = 0.5  # Jedź do przodu
-        msg.angular.z = -0.1 # Lekko skręcaj
-        self.publisher_J2_cmd_vel.publish(msg)
+        self.cmd_vel_pub[rid].publish(msg)
 
-    def print_odom(self):
-        print("J1 pozycja:")
-        print(self.J1_odom.pose.pose.position)
-        print("J1 orientacja:")
-        print(self.J1_odom.pose.pose.orientation)
-        print("J2 pozycja:")
-        print(self.J2_odom.pose.pose.position)
-        print("J2 orientacja:")
-        print(self.J2_odom.pose.pose.orientation)
-        print("--------")
+    def rotate_to_angle(self, rid, angle):
 
-    def print_lidar(self):
-        print("J1 lidar:")
-        print(self.J1_lidar)
+        msg = Twist()
+        msg.angular.z = 1.5 * (angle)
+        self.cmd_vel_pub[rid].publish(msg)
 
-        print("J2 lidar:")
-        print(self.J2_lidar)
-        print("--------")
+    def drive_to_target(self, rid, angle):
+        msg = Twist()
+        msg.linear.x = 0.25
+        msg.angular.z = 1 * (angle)
 
+        self.cmd_vel_pub[rid].publish(msg)
 
+    def drive_prepare(self, rid, angle, dist):
+
+        msg = Twist()
+
+        msg.linear.x = min(0.08, 0.5 * (dist - 0.10))
+
+        msg.angular.z = 0.8 * angle
+
+        self.cmd_vel_pub[rid].publish(msg)
 
 def main():
-    print('Hi from project_package.')
-    rclpy.init(args=None)
-    node = DanceNode()
+    rclpy.init()
+    node = MultiRobotController()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
@@ -120,4 +336,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
