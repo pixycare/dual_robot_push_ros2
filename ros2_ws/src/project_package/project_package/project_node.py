@@ -50,16 +50,9 @@ class MultiRobotController(Node):
 
         self.timer = self.create_timer(0.1, self.control_loop)
 
-    # =========================================================
-    # CALLBACKS
-    # =========================================================
-
     def odom_cb(self, msg, rid):
         self.robots[rid]["odom"] = msg
 
-    # def lidar_cb(self, msg, rid):
-    #     self.robots[rid]["lidar"] = msg
-    
     def lidar_cb(self, msg, rid):
         self.robots[rid]["lidar"] = msg
 
@@ -68,17 +61,11 @@ class MultiRobotController(Node):
         if valid:
             print(f"[{rid}] nearest object: {min(valid):.2f} m")
 
-    # =========================================================
-    # LOOP
-    # =========================================================
-
     def control_loop(self):
         for rid in self.robot_ids:
             self.step_robot(rid)
 
-    # =========================================================
     # FSM
-    # =========================================================
 
     def step_robot(self, rid):
 
@@ -98,7 +85,7 @@ class MultiRobotController(Node):
 
             angle, dist = self.detect_robot(rid)
 
-            # robot not seen
+            #robot not detected
             if angle is None or dist is None:
                 self.rotate_slow(rid)
                 return
@@ -106,13 +93,11 @@ class MultiRobotController(Node):
             print(f"[{rid}] PREPARE target: "
                 f"angle={np.degrees(angle):.1f} deg "
                 f"dist={dist:.2f} m")
-
-            # first align
+            #rotate towards target
             if abs(angle) > 0.08:
                 self.rotate_to_angle(rid, angle)
                 return
-
-            # then move closer
+            #drive towards target
             if dist > 0.40:
                 self.drive_prepare(rid, angle, dist)
                 return
@@ -148,7 +133,7 @@ class MultiRobotController(Node):
             self.rotate_slow(rid)
 
         elif state == "ALIGN":
-            # print(f"[{rid}] STATE: ALIGN")
+            print(f"[{rid}] STATE: ALIGN")
 
             angle, dist = self.detect_target(rid)
 
@@ -207,16 +192,10 @@ class MultiRobotController(Node):
 
             self.cmd_vel_pub[rid].publish(msg)
 
-    # =========================================================
-    # SYNC
-    # =========================================================
-
     def check_sync(self):
         return all(self.robots[r]["ready"] for r in self.robot_ids)
 
-    # =========================================================
-    # SIMPLE LIDAR DETECTION
-    # =========================================================
+    #DETECTION
 
     def detect_target(self, rid):
 
@@ -244,7 +223,6 @@ class MultiRobotController(Node):
 
         angle = np.median(angles)
         dist  = np.median(dists)
-        # print("-> angle (deg):", np.median(angles), "dist:", np.median(dists))
         self.robots[rid]["last_angle"] = np.median(angles)
         self.robots[rid]["last_dist"] = np.median(dists)
         return np.median(angles), np.median(dists)
@@ -274,21 +252,8 @@ class MultiRobotController(Node):
         dists  = [p[1] for p in points]
 
         return np.median(angles), np.median(dists)
-    # # =========================================================
-    # # SECTORS
-    # # =========================================================
 
-    # def is_in_sector(self, rid, angle_deg):
-
-    #     if rid == "J1":
-    #         return -70 < angle_deg < 20
-    #     else:
-    #         return -20 < angle_deg < 70
-
-    # =========================================================
     # CONTROL
-    # =========================================================
-
     def rotate_slow(self, rid):
 
         msg = Twist()
