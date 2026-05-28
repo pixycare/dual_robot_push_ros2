@@ -3,7 +3,15 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Image
+
+from cv_bridge import CvBridge
+import cv2
+
+import sys
+sys.path.append("/root/yolo_env/lib/python3.12/site-packages")
+
+from ultralytics import YOLO
 
 import numpy as np
 
@@ -12,6 +20,10 @@ class MultiRobotController(Node):
 
     def __init__(self):
         super().__init__('multi_robot_controller')
+        
+        self.bridge = CvBridge()
+        
+        self.yolo = YOLO("yolov8n.pt")
 
         self.robot_ids = ["J0", "J1"]
 
@@ -19,6 +31,7 @@ class MultiRobotController(Node):
             rid: {
                 "odom": None,
                 "lidar": None,
+                "camera": None,
                 "state": "INIT",
                 "ready": False,
                 "last_angle": None,
@@ -47,6 +60,13 @@ class MultiRobotController(Node):
                 lambda msg, r=rid: self.lidar_cb(msg, r),
                 10
             )
+            
+            self.create_subscription(
+                Image,
+                f'/{rid}/camera/image_raw',
+                lambda msg, r=rid: self.camera_cb(msg, r),
+                10
+            )
 
         self.timer = self.create_timer(0.1, self.control_loop)
 
@@ -60,6 +80,36 @@ class MultiRobotController(Node):
 
         if valid:
             print(f"[{rid}] nearest object: {min(valid):.2f} m")
+    
+    def camera_cb(self, msg, rid):
+        try:
+            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+
+            self.robots[rid]["camera"] = frame
+
+            h, w, _ = frame.shape
+
+            print(f"[{rid}] camera frame: {w}x{h}")
+            
+            results = self.yolo(frame, verbose=False)[0]
+            
+            for r in results:
+                for box in r.boxes:
+                    cls = int(box.cls[0])
+                    conf = float(box.conf[0])
+                    name = self.yolo.names[cls]
+
+                    print(name, conf)
+            annotated = results.plot()
+            # PODGLĄD
+            cv2.imshow(rid, annotated)
+            cv2.waitKey(1)
+
+        except Exception as e:
+            self.get_logger().error(
+                f"[{rid}] camera conversion failed: {e}"
+            )
+        
 
     def control_loop(self):
         for rid in self.robot_ids:
@@ -209,8 +259,6 @@ class MultiRobotController(Node):
                 continue
 
             angle = scan.angle_min + i * scan.angle_increment
-            angle_deg = np.degrees(angle)
-
 
             if 0.6 < r < 2:
                 points.append((angle, r))
@@ -223,9 +271,9 @@ class MultiRobotController(Node):
 
         angle = np.median(angles)
         dist  = np.median(dists)
-        self.robots[rid]["last_angle"] = np.median(angles)
-        self.robots[rid]["last_dist"] = np.median(dists)
-        return np.median(angles), np.median(dists)
+        self.robots[rid]["last_angle"] = angle
+        self.robots[rid]["last_dist"] = dist
+        return angle, dist
 
     def detect_robot(self, rid):
 
@@ -239,8 +287,6 @@ class MultiRobotController(Node):
                 continue
 
             angle = scan.angle_min + i * scan.angle_increment
-            angle_deg = np.degrees(angle)
-
 
             if 0.05 < r < 0.6:
                 points.append((angle, r))

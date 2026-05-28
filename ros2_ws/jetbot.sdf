@@ -145,7 +145,7 @@
                 <!-- LIDAR sensor parameters -->
                 <sensor name="gpu_lidar" type="gpu_lidar">"
                     <pose relative_to="lidar_frame">0 0 -0.02 0 0 0</pose>
-                    <topic>/J1/lidar</topic>
+                    <topic>/J0/lidar</topic>
                     <update_rate>5</update_rate>
                     <ray>
                         <scan>
@@ -215,10 +215,10 @@
                     <always_on>true</always_on>
                     <visualize>true</visualize>
                     <update_rate>5</update_rate>
-                    <topic>/J1/camera/image_raw</topic>
+                    <topic>/J0/camera/image_raw</topic>
                     <gz_frame_id>camera_rgb_frame</gz_frame_id>
                     <camera name="intel_realsense_r200">
-                        <camera_info_topic>/J1/camera/camera_info</camera_info_topic>
+                        <camera_info_topic>/J0/camera/camera_info</camera_info_topic>
                         <horizontal_fov>1.02974</horizontal_fov>
                         <image>
                             <width>320</width>
@@ -442,9 +442,9 @@
                 <wheel_separation>0.12</wheel_separation>
                 <wheel_radius>0.04</wheel_radius>
                 <odom_publish_frequency>1</odom_publish_frequency>
-                <topic>/J1/cmd_vel</topic>
-                <odom_topic>/J1/odom</odom_topic>
-                <tf_topic>/J1/tf</tf_topic>
+                <topic>/J0/cmd_vel</topic>
+                <odom_topic>/J0/odom</odom_topic>
+                <tf_topic>/J0/tf</tf_topic>
             </plugin>
 
         </model>
@@ -539,7 +539,7 @@
                 <!-- LIDAR sensor parameters -->
                 <sensor name="gpu_lidar" type="gpu_lidar">"
                     <pose relative_to="lidar_frame">0 0 -0.02 0 0 0</pose>
-                    <topic>/J2/lidar</topic>
+                    <topic>/J1/lidar</topic>
                     <update_rate>5</update_rate>
                     <ray>
                         <scan>
@@ -609,10 +609,10 @@
                     <always_on>true</always_on>
                     <visualize>true</visualize>
                     <update_rate>5</update_rate>
-                    <topic>/J2/camera/image_raw</topic>
+                    <topic>/J1/camera/image_raw</topic>
                     <gz_frame_id>camera_rgb_frame</gz_frame_id>
                     <camera name="intel_realsense_r200">
-                        <camera_info_topic>/J2/camera/camera_info</camera_info_topic>
+                        <camera_info_topic>/J1/camera/camera_info</camera_info_topic>
                         <horizontal_fov>1.02974</horizontal_fov>
                         <image>
                             <width>320</width>
@@ -836,9 +836,9 @@
                 <wheel_separation>0.12</wheel_separation>
                 <wheel_radius>0.04</wheel_radius>
                 <odom_publish_frequency>1</odom_publish_frequency>
-                <topic>/J2/cmd_vel</topic>
-                <odom_topic>/J2/odom</odom_topic> 
-                <tf_topic>/J2/tf</tf_topic>
+                <topic>/J1/cmd_vel</topic>
+                <odom_topic>/J1/odom</odom_topic> 
+                <tf_topic>/J1/tf</tf_topic>
             </plugin>
 
         </model>
