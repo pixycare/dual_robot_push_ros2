@@ -25,6 +25,9 @@ RUN apt-get install -y \
     #   ros-jazzy-v4l2-camera \
     #   ros-jazzy-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir ultralytics
+
 #ros-jazzy-cyclonedds \
 #ros-jazzy-rmw-cyclonedds-cpp \
 #ros-jazzy-demo-nodes-py \
